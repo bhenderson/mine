@@ -3,10 +3,17 @@ export PATH=$mine_path/bin:$PATH
 
 # define top level function
 mine() {
-  pipe=`mktemp -t mine`
+  # copy
+  exec 3>&1 4>&1
 
-  command mine "$pipe" "$@"
-  source "$pipe"; rm -f $pipe
+  {
+    while read line; do
+      eval "$line"
+    done
+  } < <(command mine "$@" 3>&1 >&4)
+
+  # close
+  exec 3>&- 4>&-
 }
 
 mine use default

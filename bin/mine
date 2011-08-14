@@ -1,12 +1,7 @@
 #!/bin/bash
 
 # writable file needed to source from function
-if [ -w "$1" ]; then
-  pipe="$1"; shift
-else
-  pipe="/dev/null"
-fi
-export pipe
+[[ -a "/dev/fd/3" ]] || exec 3>/dev/null
 
 # add libs
 export PATH="$mine_path/lib:$PATH"
@@ -24,10 +19,6 @@ case "$1" in
   ;;
 esac
 
-cat >$pipe <<-EOS
-  export mine_ruby="$mine_ruby"
-  export GEM_HOME="$mine_path/rubies/$mine_ruby/gems"
-  export GEM_PATH="$mine_path/rubies/$mine_ruby/gems"
-EOS
+update_ruby
 
 # vim: ft=sh :
