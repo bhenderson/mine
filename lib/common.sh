@@ -1,8 +1,12 @@
 export rubies_path=$mine_path/rubies
 export orig_ruby="$mine_ruby"
 
-abort() {
+warn() {
   printf "%s\n" "$@" >&2
+}
+
+abort() {
+  warn "$@"
   exit 1
 }
 

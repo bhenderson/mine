@@ -8,16 +8,53 @@ export PATH="$mine_path/lib:$PATH"
 source 'common.sh'
 export command_name=mine
 
-case "$1" in
-  use)
-    shift
-    source 'use.sh' "$@"
-  ;;
-  list)
-    shift
-    source 'list.sh' "$@"
-  ;;
-esac
+usage() {
+  [[ "$@" ]] && echo "$@"
+cat <<-EOS
+Usage: $command_name [command] [options]
+
+  Commands:
+    alias
+    delete
+    help
+    list
+    remove
+    use
+
+EOS
+  exit 1
+}
+
+parse_opts() {
+  case "$1" in
+    help)
+      [[ "$2" ]] && parse_opts "$2" "--help"
+
+      usage
+    ;;
+    use)
+      shift
+      source 'use.sh' "$@"
+    ;;
+    list)
+      shift
+      source 'list.sh' "$@"
+    ;;
+    remove|delete)
+      shift
+      source 'remove.sh' "$@"
+    ;;
+    alias)
+      shift
+      source 'alias.sh' "$@"
+    ;;
+    *)
+      usage "unknown option '$1'"
+    ;;
+  esac
+}
+
+parse_opts "$@"
 
 update_ruby
 
