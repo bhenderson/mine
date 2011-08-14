@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+
+name=`basename $0`
+path="`dirname $0`/../rubies/$mine_ruby/bin/$name"
+if [[ -x "$path" ]]; then
+  exec $path "$@"
+else
+  echo "$path is not executable by you. quiting."
+  exit 1
+fi

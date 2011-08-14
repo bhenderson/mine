@@ -1,0 +1,14 @@
+export mine_path="$(cd "$(dirname "$BASH_SOURCE")/.."; pwd)"
+export PATH=$mine_path/bin:$PATH
+
+# define top level function
+mine() {
+  pipe=`mktemp -t mine`
+
+  command mine "$pipe" "$@"
+  source "$pipe"; rm -f $pipe
+}
+
+mine use default
+
+# vim: ft=sh :

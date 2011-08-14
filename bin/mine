@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# writable file needed to source from function
+if [ -w "$1" ]; then
+  pipe="$1"; shift
+else
+  pipe="/dev/null"
+fi
+export pipe
+
+# add libs
+export PATH="$mine_path/lib:$PATH"
+source 'common.sh'
+export command_name=mine
+
+case "$1" in
+  use)
+    shift
+    source 'use.sh' "$@"
+  ;;
+  list)
+    shift
+    source 'list.sh' "$@"
+  ;;
+esac
+
+cat >$pipe <<-EOS
+  export mine_ruby="$mine_ruby"
+  export GEM_HOME="$mine_path/rubies/$mine_ruby/gems"
+  export GEM_PATH="$mine_path/rubies/$mine_ruby/gems"
+EOS
+
+# vim: ft=sh :
