@@ -1,9 +1,13 @@
-option="$1"
-
-rubies=("`list_rubies "$1"`")
+rubies=(`list_rubies "$1"`)
 (
-  cd "$mine_path"
-  for ruby in ${rubies[@]}; do
-    ls -ld "rubies/$ruby" | cut -d/ -f2
-  done
+  [[ "$rubies" ]] || abort 'none installed.'
+  cd "$rubies_path"
+  file_list="`printf "./%s " ${rubies[@]}`"
+
+  {
+    # list aliases
+    find $file_list -prune -type l -ls
+    # list rubies
+    find $file_list -prune -type d -ls
+  } | cut -d/ -f2- | grep --color -e "$mine_ruby" -e ''
 )

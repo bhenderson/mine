@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# writable file needed to source from function
+# is there a better way to test FD 3?
 [[ -a "/dev/fd/3" ]] || exec 3>/dev/null
 
 # add libs
@@ -15,8 +15,8 @@ Usage: $command_name [command] [options]
 
   Commands:
     alias
-    delete
     help
+    install
     list
     remove
     use
@@ -32,21 +32,9 @@ parse_opts() {
 
       usage
     ;;
-    use)
-      shift
-      source 'use.sh' "$@"
-    ;;
-    list)
-      shift
-      source 'list.sh' "$@"
-    ;;
-    remove|delete)
-      shift
-      source 'remove.sh' "$@"
-    ;;
-    alias)
-      shift
-      source 'alias.sh' "$@"
+    alias|install|list|remove|use)
+      cmd=$1; shift
+      source "$cmd.sh" "$@"
     ;;
     *)
       usage "unknown option '$1'"
