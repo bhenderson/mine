@@ -1,3 +1,4 @@
+# TODO make this reusable?
 declare -a ARGV
 for arg; do
   case "$arg" in
@@ -13,10 +14,7 @@ for arg; do
 done
 set -- "${ARGV[@]}"
 
-if [[ "$opt_remote" ]]; then
-  list_remote_rubies "$1"
-  exit
-fi
+[[ "$opt_remote" ]] && { list_remote_rubies "$1"; exit; }
 
 rubies=(`list_rubies "$1"`)
 (
