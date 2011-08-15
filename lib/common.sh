@@ -17,30 +17,18 @@ abort() {
 }
 
 list_rubies() {
-  arg="$1"
-
-  pat() {
-    echo "$arg" | sed 's/./&.*/g'
-  }
-
   # list all directories
   (
     cd "$rubies_path"
-    ls | grep "`pat`"
+    ls | ruby_string_search "$@"
   )
 }
 
 # TODO dry up
 list_remote_rubies() {
-  arg="$1"
-
-  pat() {
-    echo "$arg" | sed 's/./&.*/g'
-  }
-
   (
     cd "$mine_path"
-    grep "`pat`"
+    cat .ruby_cache | ruby_string_search "$@"
   )
 }
 
@@ -50,6 +38,10 @@ reset_ruby() {
 
 rubies_bin_path() {
   echo "$rubies_path/$mine_ruby/bin"
+}
+
+ruby_string_search() {
+  grep "`echo "$1" | sed 's/./&.*/g'`"
 }
 
 set_path() {
