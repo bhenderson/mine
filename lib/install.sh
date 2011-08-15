@@ -3,8 +3,9 @@
 # all known:
 #http://ftp.ruby-lang.org/pub/ruby/1.8/
 
-trap_reset_original_ruby
+set_original_ruby
 
+# TODO allow picking from cache file
 export mine_ruby="$1"
 
 fetch_tgz() {
@@ -13,7 +14,7 @@ fetch_tgz() {
   if [[ -z "$skip_cache" && -s "$file" ]]; then
     echo "using cached copy"
   else
-    echo "downloading $mine_ruby"
+    echo "downloading $remote"
     curl -f -# "$remote" --remote-name || abort "failed to download $remote"
   fi
 }
@@ -58,19 +59,17 @@ install_ruby() {
 
     [[ -d "$rubies_path/default" ]] || set_default
 
+    # already installed? 1.9.x
+    [[ -a "`rubies_bin_path`/gem" ]] && return
+
     #TODO how should we pick this version? it's also a little weird that we
     # don't set this var inside the function.
-
-    # already installed?
-    if [[ ! -a "`rubies_bin_path`/gem" ]]; then
-      rubygems=rubygems-1.3.7
-      echo Installing $rubygems
-      install_rubygems 2>&1 | progress -a "$log"
-    fi
+    rubygems=rubygems-1.3.7
+    echo Installing $rubygems
+    install_rubygems 2>&1 | progress -a "$log"
   )
 }
 
-# TODO how to get current rubygems rather than hardcode 1.3.7
 install_rubygems() {
   fetch_tgz "http://production.cf.rubygems.org/rubygems/$rubygems.tgz"
   tar xzf $rubygems.tgz
@@ -96,20 +95,8 @@ progress() {
   echo "done."
 }
 
-set_system() {
-  # command doesn't always work :(
-  #system_ruby="`command -vp ruby`" || return
-  system_ruby="`which -a ruby | grep -v "$mine_path" | head -n1`" || return
-
-  (
-    cd "$rubies_path"
-    ln -s "`dirname $system_ruby`" system
-  )
-}
-
 strip_version() {
   echo "$mine_ruby" | grep -o '[0-9]\+\.[0-9]\+'
 }
 
-[[ -d "$rubies_path/system" ]] || set_system
 install_ruby

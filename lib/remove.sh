@@ -1,6 +1,6 @@
 opt="$1"
 
-trap_reset_original_ruby
+set_original_ruby
 
 source 'use.sh' "$opt"
 

@@ -3,7 +3,6 @@
 set -o pipefail
 
 export mine_bin=$mine_path/bin
-export orig_ruby="$mine_ruby"
 export rubies_path=$mine_path/rubies
 
 mkdir -p "$rubies_path" &>/dev/null || abort 'unable to create rubies dir.'
@@ -31,6 +30,24 @@ list_rubies() {
   )
 }
 
+# TODO dry up
+list_remote_rubies() {
+  arg="$1"
+
+  pat() {
+    echo "$arg" | sed 's/./&.*/g'
+  }
+
+  (
+    cd "$mine_path"
+    grep "`pat`"
+  )
+}
+
+reset_ruby() {
+  [[ "$orig_ruby" ]] && export mine_ruby="$orig_ruby"
+}
+
 rubies_bin_path() {
   echo "$rubies_path/$mine_ruby/bin"
 }
@@ -51,9 +68,25 @@ set_default() {
   export mine_ruby=default
 }
 
+set_system() {
+  # command doesn't always work :(
+  #system_ruby="`command -vp ruby`" || return
+  system_ruby="`which -a ruby | grep -v "$mine_path" | head -n1`" || return
+
+  (
+    cd "$rubies_path"
+    ln -s "`dirname $system_ruby`" system
+  )
+}
+
+set_original_ruby() {
+  export orig_ruby="$mine_ruby"
+}
+
 update_ruby() {
   #[[ "$orig_ruby" == "$mine_ruby" ]] && return
   set_path
+  reset_ruby
 
 cat >&3 <<-EOS
   export mine_ruby="$mine_ruby"
@@ -62,6 +95,5 @@ cat >&3 <<-EOS
 EOS
 }
 
-trap_reset_original_ruby() {
-  trap 'export mine_ruby="$orig_ruby"' EXIT
-}
+# make sure system is setup
+[[ -d "$rubies_path/system" ]] || set_system
