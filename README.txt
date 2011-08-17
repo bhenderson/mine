@@ -7,7 +7,7 @@ but "works"
 === Install
 
   $ git clone git@github.com:bhenderson/mine.git ~/.mine
-  $ echo '[[ -s ~/.mine/scripts/mine ]] && source ~/.mine/scripts/mine' >> ~/.bashrc
+  $ ~/.mine/bin/mine setup
 
 === Usage
 
@@ -39,7 +39,7 @@ I wanted to see if I could simplify it a little.
 
 I wanted 99.9% of the work to be done in a subshell/script. The problem with
 this is that a subshell can't update it's parent's env. So mine has to be a
-function. See scripts/mine.
+function. See head of main bin.
 
 === TODO
 

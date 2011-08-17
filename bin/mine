@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# being sourced?
+[[ "$BASH_SOURCE" != "$0" ]] && {
+  export mine_path="$( cd $(dirname "$BASH_SOURCE")/..; pwd )"
+  export PATH="$mine_path/bin:$PATH"
+
+  # setup top level function
+  # eval anything that comes out on FD3, but still print FD1 to stdout
+  mine() {
+    # open
+    exec 3>&1 4>&1
+
+    eval "`command mine "$@" 3>&1 >&4`"
+
+    # close
+    exec 3>&- 4>&-
+  }
+  export -f mine
+
+  mine use default
+  return
+}
+
+# the rest of this script gets run as a command
+
 # is there a better way to test FD 3?
 [[ -a "/dev/fd/3" ]] || exec 3>/dev/null
 
@@ -19,6 +43,7 @@ Usage: $command_name [command] [options]
     install
     list
     remove
+    setup
     use
 
 EOS
@@ -32,7 +57,7 @@ parse_opts() {
 
       usage
     ;;
-    alias|install|list|remove|use)
+    alias|install|list|remove|setup|use)
       cmd=$1; shift
       source "$cmd.sh" "$@"
     ;;
