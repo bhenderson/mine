@@ -10,3 +10,5 @@ warn "removing '$mine_ruby'"
   rm -rf "$mine_ruby"
 )
 
+# TODO what do we do if we remove the default ruby?
+export $mine_ruby=default

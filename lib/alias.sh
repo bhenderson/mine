@@ -1,6 +1,8 @@
 ruby="$1"
 alias="$2"
 
+set_original_ruby
+
 source 'use.sh' "$ruby"
 (
   cd "$rubies_path"
@@ -8,5 +10,3 @@ source 'use.sh' "$ruby"
 
   ln -s "$mine_ruby" "$alias"
 )
-
-export mine_ruby="$orig_ruby"

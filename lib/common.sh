@@ -32,6 +32,22 @@ list_remote_rubies() {
   )
 }
 
+progress() {
+  n=0
+
+  clear() {
+    printf '%80s\r' '' # clear
+  }
+
+  tee "$@" | while read; do
+    clear
+    printf '%3d% *s\r' $(( n / 77 )) $(( ++n % 77 )) '>'
+  done
+
+  clear
+  echo "done."
+}
+
 reset_ruby() {
   [[ "$orig_ruby" ]] && export mine_ruby="$orig_ruby"
 }

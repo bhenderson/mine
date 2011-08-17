@@ -39,6 +39,7 @@ Usage: $command_name [command] [options]
 
   Commands:
     alias
+    copy
     help
     install
     list
@@ -57,7 +58,7 @@ parse_opts() {
 
       usage
     ;;
-    alias|install|list|remove|setup|use)
+    alias|copy|install|list|remove|setup|use)
       cmd=$1; shift
       source "$cmd.sh" "$@"
     ;;
