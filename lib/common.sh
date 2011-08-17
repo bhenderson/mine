@@ -91,6 +91,15 @@ set_original_ruby() {
   export orig_ruby="$mine_ruby"
 }
 
+set_fall_back_ruby() {
+  (
+    cd "$rubies_path"
+    [[ -d "default" ]] && mine_path=default ||
+    [[ -d "system" ]] && mine_path=default ||
+    warn 'no default ruby to fall back on. set with mine use <ruby> --default'
+  )
+}
+
 update_ruby() {
   #[[ "$orig_ruby" == "$mine_ruby" ]] && return
   set_path
@@ -99,7 +108,7 @@ update_ruby() {
 cat >&3 <<-EOS
   export mine_ruby="$mine_ruby"
   export PATH="$PATH"
-  ls "`rubies_bin_path`" | xargs hash -d
+  [[ -d "$rubies_bin_path" ]] && ls `rubies_bin_path` | xargs hash -d
 EOS
 }
 
