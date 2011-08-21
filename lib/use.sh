@@ -1,4 +1,22 @@
 option="$1"; shift
+
+usage() {
+  cat <<-EOU
+Usage: $command_name use rubish
+
+  Sets and new ruby to rubish.
+  "rubyish" is searched for using shortest match. Matching characters do not
+  have to be sequencial.
+
+EOU
+  exit 1
+}
+
+case "$option" in
+  -h|--help)
+    usage
+  ;;
+esac
 mine_ruby="$option"
 
 disambiguate() {
@@ -6,7 +24,7 @@ disambiguate() {
     echo $mine_ruby | sed 's/./&.*/g'
   }
 
-  mine_ruby=( $(list_rubies | grep "$(pat)") )
+  mine_ruby=( $(list_rubies $mine_ruby) )
 
   case "${#mine_ruby[@]}" in
     0)

@@ -5,16 +5,16 @@ set -o pipefail
 export mine_bin=$mine_path/bin
 export rubies_path=$mine_path/rubies
 
-mkdir -p "$rubies_path" &>/dev/null || abort 'unable to create rubies dir.'
+abort() {
+  warn "$@"
+  exit 1
+}
 
 warn() {
   printf "%s\n" "$@" >&2
 }
 
-abort() {
-  warn "$@"
-  exit 1
-}
+mkdir -p "$rubies_path" &>/dev/null || abort 'unable to create rubies dir.'
 
 list_rubies() {
   # list all directories
@@ -28,7 +28,7 @@ list_rubies() {
 list_remote_rubies() {
   (
     cd "$mine_path"
-    cat .ruby_cache | ruby_string_search "$@"
+    cat `ruby_cache` | ruby_string_search "$@"
   )
 }
 
@@ -56,14 +56,25 @@ rubies_bin_path() {
   echo "$rubies_path/$mine_ruby/bin"
 }
 
-ruby_string_search() {
-  grep "`echo "$1" | sed 's/./&.*/g'`"
+# for listing remote versions:
+get_ruby_cache() {
+  curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' | grep -o 'ruby.*tar.gz'
 }
 
-set_path() {
-  PATH=$(printf ':%s' $(echo -e ${PATH//:/\\n} | grep -v "$mine_path"))
-  PATH="`rubies_bin_path`:$mine_bin$PATH"
-  export PATH
+ruby_cache() {
+  local cache='.ruby_cache'
+  local recache=$1
+  (
+    cd "$mine_path"
+    # if recache or not empty
+    #[[ "$recache" -o ! -s "$cache" ]] && get_ruby_cache > "$cache"
+    echo $cache
+  )
+}
+
+ruby_string_search() {
+  local pat="`echo "$1" | sed 's/./.*&/g'`"
+  grep "${pat:2}"
 }
 
 set_default() {
@@ -74,6 +85,12 @@ set_default() {
     ln -s "$mine_ruby" default
   )
   export mine_ruby=default
+}
+
+set_path() {
+  PATH=$(printf ':%s' $(echo -e ${PATH//:/\\n} | grep -v "$mine_path"))
+  PATH="`rubies_bin_path`:$mine_bin$PATH"
+  export PATH
 }
 
 set_system() {
@@ -108,7 +125,7 @@ update_ruby() {
 cat >&3 <<-EOS
   export mine_ruby="$mine_ruby"
   export PATH="$PATH"
-  [[ -d "$rubies_bin_path" ]] && ls `rubies_bin_path` | xargs hash -d
+  [[ -d "`rubies_bin_path`" ]] && ls `rubies_bin_path` | xargs hash -d
 EOS
 }
 

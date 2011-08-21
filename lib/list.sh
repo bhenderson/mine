@@ -1,7 +1,21 @@
+usage() {
+  cat <<-EOU
+Usage: $command_name list [rubish]
+
+  --remote:   list known remote rubies
+  --help:     show this message
+
+EOU
+  exit 1
+}
+
 # TODO make this reusable?
 declare -a ARGV
 for arg; do
   case "$arg" in
+    -h|--help)
+      usage
+    ;;
     --remote)
       opt_remote=true
       shift
@@ -29,8 +43,3 @@ rubies=(`list_rubies "$1"`)
     find $file_list -prune -type d -ls
   } | cut -d/ -f2- | grep  -e "$mine_ruby" -e ''
 )
-
-# for listing remote versions:
-
-# TODO how to get a 'cache' of all versions >= 1.8?
-# curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' | grep -o 'ruby.*tar.gz' > .ruby_cache
