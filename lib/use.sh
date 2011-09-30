@@ -1,34 +1,42 @@
-option="$1"; shift
-
 usage() {
   cat <<-EOU
 Usage: $command_name use rubish
 
-  Sets and new ruby to rubish.
-  "rubyish" is searched for using shortest match. Matching characters do not
-  have to be sequencial.
+  Sets ruby in current env.
 
 EOU
   exit 1
 }
 
-case "$option" in
-  -h|--help)
-    usage
-  ;;
-esac
-mine_ruby="$option"
+# parse options
+declare -a ARGV
+for arg; do
+  case "$arg" in
+    -h|--help)
+      usage
+    ;;
+    --default)
+      opt_default=true
+      shift
+    ;;
+    *)
+      ARGV+=("$1")
+      shift
+    ;;
+  esac
+done
+set -- "${ARGV[@]}"
+unset ARGV
+
+mine_ruby="$1"
 
 disambiguate() {
-  pat() {
-    echo $mine_ruby | sed 's/./&.*/g'
-  }
-
+  local orig="$mine_ruby"
   mine_ruby=( $(list_rubies $mine_ruby) )
 
   case "${#mine_ruby[@]}" in
     0)
-      abort "unable to find '$option'"
+      abort "unable to find '$orig'"
     ;;
     1)
       : # found!
@@ -41,10 +49,4 @@ disambiguate() {
 
 # exact match?
 [ -d "$rubies_path/$mine_ruby" ] || disambiguate
-
-# parse extra opts
-case "$1" in
-  --default)
-    set_default
-  ;;
-esac
+[ "$opt_default" ] && set_default
