@@ -27,19 +27,19 @@ for arg; do
   esac
 done
 set -- "${ARGV[@]}"
+unset ARGV
 
 [[ "$opt_remote" ]] && { list_remote_rubies "$1"; exit; }
 
-rubies=(`list_rubies "$1"`)
 (
-  [[ "$rubies" ]] || abort 'none installed.'
-  cd "$rubies_path"
-  file_list="`printf "./%s " ${rubies[@]}`"
-
-  {
-    # list aliases
-    find $file_list -prune -type l -ls
-    # list rubies
-    find $file_list -prune -type d -ls
-  } | cut -d/ -f2- | grep  -e "$mine_ruby" -e ''
+  cd $rubies_path
+  ls -ld ./* |
+    # sort links first (mac ls does not have -X option)
+    sort -k 1,1r -k 9 |
+    # only actually show the file
+    cut -d/ -f2- |
+    # limit based on user input
+    ruby_string_search "$@" |
+    # color current one
+    grep -e "$mine_ruby" -e ''
 )
