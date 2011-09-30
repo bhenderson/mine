@@ -1,13 +1,13 @@
 === Description
 
-(simple) ruby manager.
+A (simple) ruby manager.
 Very alpha. no tests :(
 but "works"
 
 === Install
 
   $ git clone git@github.com:bhenderson/mine.git ~/.mine
-  $ ~/.mine/bin/mine setup
+  $ source ~/.mine/bin/mine setup
 
 === Usage
 
@@ -44,7 +44,6 @@ function. See head of main bin.
 === TODO
 
   * tests!!!
-  * remote cache
   * copy
   * get "current" ruby from CWD (allowing for .minerc files)
   * lots of other things I can't think of right now

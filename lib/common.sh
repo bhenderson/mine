@@ -15,10 +15,30 @@ abort() {
 }
 
 warn() {
-  printf "%s\n" "$@" >&2
+  [[ -z "$opt_quiet" ]] && printf "%s\n" "$@" #>&3
 }
 
 mkdir -p "$rubies_path" &>/dev/null || abort 'unable to create rubies dir.'
+
+disambiguate() {
+  local remote="$1"
+  local orig="$mine_ruby"
+  test "$remote" == 'remote' &&
+    mine_ruby=( $(list_remote_rubies $mine_ruby) ) ||
+    mine_ruby=( $(list_rubies $mine_ruby) )
+
+  case "${#mine_ruby[@]}" in
+    0)
+      abort "unable to find '$orig'"
+    ;;
+    1)
+      : # found!
+    ;;
+    *)
+      abort "which?" "${mine_ruby[@]}"
+    ;;
+  esac
+}
 
 list_rubies() {
   # list all directories
@@ -32,7 +52,8 @@ list_rubies() {
 list_remote_rubies() {
   (
     cd "$mine_path"
-    cat `ruby_cache` | ruby_string_search "$@"
+    get_ruby_cache
+    cat "$mine_cache" | ruby_string_search "$@"
   )
 }
 
@@ -56,25 +77,28 @@ reset_ruby() {
   [[ "$orig_ruby" ]] && export mine_ruby="$orig_ruby"
 }
 
+reset_system() {
+  (
+    cd "$rubies_path"
+    rm -f system
+  )
+  set_system
+}
+
 rubies_bin_path() {
   echo "$rubies_path/$mine_ruby/bin"
 }
 
 # for listing remote versions:
 get_ruby_cache() {
-  curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' | grep -o 'ruby.*tar.gz'
+  test -n "$opt_recache" -o ! -s "$mine_cache" || return
+  echo 'getting cache'
+  curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' |
+    grep -o 'ruby.*tar.gz' |
+    progress "$mine_cache"
 }
 
-ruby_cache() {
-  local cache='.ruby_cache'
-  local recache=$1
-  (
-    cd "$mine_path"
-    # if recache or not empty
-    #[[ "$recache" -o ! -s "$cache" ]] && get_ruby_cache > "$cache"
-    echo $cache
-  )
-}
+mine_cache="$mine_path/.ruby_cache"
 
 ruby_string_search() {
   local pat="`echo "$1" | sed 's/./.*&/g'`"
@@ -122,14 +146,19 @@ set_fall_back_ruby() {
 }
 
 update_ruby() {
-  #[[ "$orig_ruby" == "$mine_ruby" ]] && return
+  # is ruby empty?
+  [ -z "$mine_ruby" ] &&
+    # did we change ruby? then don't bother
+    [[ "$orig_ruby" == "$mine_ruby" ]] &&
+    return
+
   set_path
   reset_ruby
 
 cat >&3 <<-EOS
   export mine_ruby="$mine_ruby"
   export PATH="$PATH"
-  [[ -d "`rubies_bin_path`" ]] && ls `rubies_bin_path` | xargs hash -d
+  [[ -d "`rubies_bin_path`" ]] && hash \`ls `rubies_bin_path`\`
 EOS
 }
 

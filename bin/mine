@@ -1,8 +1,8 @@
 #!/bin/bash
 
+export mine_path="$( cd $(dirname "$BASH_SOURCE")/..; pwd )"
 # being sourced?
 [[ "$BASH_SOURCE" != "$0" ]] && {
-  export mine_path="$( cd $(dirname "$BASH_SOURCE")/..; pwd )"
   export PATH="$mine_path/bin:$PATH"
 
   # setup top level function
@@ -18,7 +18,9 @@
   }
   export -f mine
 
-  mine use default
+  [[ "$1" == 'setup' ]] && mine setup
+
+  mine use default --quiet
   return
 }
 
@@ -66,6 +68,10 @@ parse_opts() {
     ls)
       shift
       source "list.sh" "$@"
+    ;;
+    --reset-system)
+      reset_system
+      shift
     ;;
     *)
       usage "unknown option '$1'"

@@ -19,6 +19,10 @@ for arg; do
       opt_default=true
       shift
     ;;
+    -q|--quiet)
+      opt_quiet=true
+      shift
+    ;;
     *)
       ARGV+=("$1")
       shift
@@ -29,23 +33,6 @@ set -- "${ARGV[@]}"
 unset ARGV
 
 mine_ruby="$1"
-
-disambiguate() {
-  local orig="$mine_ruby"
-  mine_ruby=( $(list_rubies $mine_ruby) )
-
-  case "${#mine_ruby[@]}" in
-    0)
-      abort "unable to find '$orig'"
-    ;;
-    1)
-      : # found!
-    ;;
-    *)
-      abort "which?" "${mine_ruby[@]}"
-    ;;
-  esac
-}
 
 # exact match?
 [ -d "$rubies_path/$mine_ruby" ] || disambiguate

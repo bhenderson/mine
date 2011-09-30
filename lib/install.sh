@@ -7,6 +7,8 @@ set_original_ruby
 
 # TODO allow picking from cache file
 export mine_ruby="$1"
+disambiguate 'remote'
+mine_ruby=`basename "$mine_ruby" .tar.gz`
 
 fetch_tgz() {
   remote="$1"
@@ -25,10 +27,11 @@ install_ruby() {
   local src="$mine_path/src"
   local prefix="$mine_path/rubies/$mine_ruby"
   local log="$src/install.log"
+  > $log
 
   set -e
   trap 'echo "interrupted. quiting."; rm -rf "$prefix"' INT
-  trap 'echo "there was a problem. check "$log" for details."; rm -rf "$prefix"' ERR
+  trap 'echo "there was a problem."; caller 0; echo "check "$log" for details."; tail $log; rm -rf "$prefix"' ERR
 
   mkdir -p $src >/dev/null
 
@@ -55,12 +58,18 @@ install_ruby() {
       make 2>&1 | progress -a "$log"
       echo installing.
       make install 2>&1 | progress -a "$log"
+      echo installing other binaries.
+      cp bin/* "$prefix/bin"
     )
+
+    set_path
 
     [[ -d "$rubies_path/default" ]] || set_default
 
+    type -t ruby >/dev/null || abort 'no ruby found.'
+
     # already installed? 1.9.x
-    [[ -a "`rubies_bin_path`/gem" ]] && return
+    type -t gem >/dev/null && return || : #continue
 
     #TODO how should we pick this version? it's also a little weird that we
     # don't set this var inside the function.

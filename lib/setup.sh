@@ -1,4 +1,3 @@
-
 # something like
 grep -q "^source .*mine/bin/mine" ~/.bashrc || {
   echo 'setting up mine in ~/.bashrc'

@@ -16,7 +16,7 @@ for arg; do
     -h|--help)
       usage
     ;;
-    --remote)
+    -r|--remote)
       opt_remote=true
       shift
     ;;
@@ -33,7 +33,9 @@ unset ARGV
 
 (
   cd $rubies_path
-  ls -ld ./* |
+  {
+    ls -ld ./* 2>/dev/null || abort 'no rubies installed'
+  } |
     # sort links first (mac ls does not have -X option)
     sort -k 1,1r -k 9 |
     # only actually show the file
