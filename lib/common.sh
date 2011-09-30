@@ -5,6 +5,10 @@ set -o pipefail
 export mine_bin=$mine_path/bin
 export rubies_path=$mine_path/rubies
 
+# colorize
+[[ "$GREP_OPTIONS" =~ "--color" ]] ||
+  export GREP_OPTIONS="$GREP_OPTIONS --color"
+
 abort() {
   warn "$@"
   exit 1
