@@ -11,7 +11,7 @@ warn "removing '$mine_ruby'"
 
   # remove symlinks that don't point anywhere
   for link in *; do
-    [[ -h "$link" -a ! -d "$link" ]] && rm -f "$link"
+    test -h "$link" -a ! -d "$link" && rm -f "$link"
   done
 )
 

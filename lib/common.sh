@@ -158,7 +158,7 @@ update_ruby() {
 cat >&3 <<-EOS
   export mine_ruby="$mine_ruby"
   export PATH="$PATH"
-  [[ -d "`rubies_bin_path`" ]] && hash \`ls `rubies_bin_path`\`
+  [[ -d "`rubies_bin_path`" ]] && hash -d \`ls `rubies_bin_path`\` &>/dev/null
 EOS
 }
 
