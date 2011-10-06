@@ -44,7 +44,7 @@ list_rubies() {
   # list all directories
   (
     cd "$rubies_path"
-    ls | ruby_string_search "$@"
+    ls | string_search "$@"
   )
 }
 
@@ -53,7 +53,7 @@ list_remote_rubies() {
   (
     cd "$mine_path"
     get_ruby_cache
-    cat "$mine_cache" | ruby_string_search "$@"
+    cat "$mine_cache" | string_search "$@"
   )
 }
 
@@ -100,7 +100,7 @@ get_ruby_cache() {
 
 mine_cache="$mine_path/.ruby_cache"
 
-ruby_string_search() {
+string_search() {
   local pat="`echo "$1" | sed 's/./.*&/g'`"
   grep "${pat:2}"
 }

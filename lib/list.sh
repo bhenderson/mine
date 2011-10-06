@@ -41,7 +41,7 @@ unset ARGV
     # only actually show the file
     cut -d/ -f2- |
     # limit based on user input
-    ruby_string_search "$@" |
+    string_search "$@" |
     # color current one
     grep -e "$mine_ruby" -e ''
 )

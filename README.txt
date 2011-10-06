@@ -44,6 +44,9 @@ function. See head of main bin.
 === TODO
 
   * tests!!!
-  * copy
+  * copy # doing a straight cp -a does not work because of shebangs
   * get "current" ruby from CWD (allowing for .minerc files)
+  * string_search does not choose exact match if longer match also exists
+    * ie. 'ruby19, ruby192'
+  * I want to clean up option parsing
   * lots of other things I can't think of right now
