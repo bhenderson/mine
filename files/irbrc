@@ -1,0 +1,28 @@
+# get around sandboxes (isolate, bundler)
+def mine_require name, *reqs
+  dep = Gem::Dependency.new name, *reqs
+  vers = RbConfig::CONFIG['ruby_version']
+  orig_spec_path = File.expand_path "../../lib/ruby/gems/#{vers}/specifications/#{name}*", Gem.ruby
+  specs = Dir[ orig_spec_path ].map { |spec| Gem::Specification.load spec}
+  specs = specs.sort_by(&:sort_obj)
+  spec = specs.find {|spec| spec.satisfies_requirement? dep}
+  if spec
+    spec.activate
+    require name
+  end
+end
+
+# copied from rvm
+@prompt = {
+  :PROMPT_I => "irb-#{Gem.ruby_version} :%03n > ",  # default prompt
+  :PROMPT_S => "irb-#{Gem.ruby_version} :%03n%l> ", # known continuation
+  :PROMPT_C => "irb-#{Gem.ruby_version} :%03n > ",
+  :PROMPT_N => "irb-#{Gem.ruby_version} :%03n?> ",  # unknown continuation
+  :RETURN => " => %s \n",
+  :AUTO_INDENT => true
+}
+IRB.conf[:PROMPT] ||= {}
+IRB.conf[:PROMPT][:MY_PROMPT] = @prompt
+IRB.conf[:PROMPT_MODE] = :MY_PROMPT
+
+# vim: syntax=ruby
