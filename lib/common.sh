@@ -2,8 +2,12 @@
 
 set -o pipefail
 
+# is there a better way to test FD 3?
+[[ -a "/dev/fd/3" ]] || exec 3>&1
+
 export mine_bin=$mine_path/bin
 export rubies_path=$mine_path/rubies
+mine_cache="$mine_path/.ruby_cache"
 
 # colorize
 [[ "$GREP_OPTIONS" =~ "--color" ]] ||
@@ -15,7 +19,7 @@ abort() {
 }
 
 warn() {
-  [[ -z "$opt_quiet" ]] && printf "%s\n" "$@" #>&3
+  [[ -z "$opt_quiet" ]] && printf "%s\n" "$@"
 }
 
 mkdir -p "$rubies_path" &>/dev/null || abort 'unable to create rubies dir.'
@@ -40,6 +44,15 @@ disambiguate() {
   esac
 }
 
+# for listing remote versions:
+get_ruby_cache() {
+  test -n "$opt_recache" -o ! -s "$mine_cache" || return
+  echo 'getting cache'
+  curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' |
+    grep -o 'ruby.*tar.gz' |
+    progress "$mine_cache"
+}
+
 list_rubies() {
   # list all directories
   (
@@ -55,6 +68,32 @@ list_remote_rubies() {
     get_ruby_cache
     cat "$mine_cache" | string_search "$@"
   )
+}
+
+# TODO `use' should be default. ie. mine 192
+parse_opts() {
+  case "$1" in
+    help)
+      [[ "$2" ]] && parse_opts "$2" "--help"
+      usage
+    ;;
+    alias|copy|install|list|remove|setup|use)
+      cmd=$1; shift
+      source "$cmd.sh" "$@"
+    ;;
+    # shortcuts
+    ls)
+      shift
+      source "list.sh" "$@"
+    ;;
+    --reset-system)
+      reset_system
+      shift
+    ;;
+    *)
+      usage "unknown option '$1'"
+    ;;
+  esac
 }
 
 progress() {
@@ -88,17 +127,6 @@ reset_system() {
 rubies_bin_path() {
   echo "$rubies_path/$mine_ruby/bin"
 }
-
-# for listing remote versions:
-get_ruby_cache() {
-  test -n "$opt_recache" -o ! -s "$mine_cache" || return
-  echo 'getting cache'
-  curl -sS 'ftp://ftp.ruby-lang.org/pub/ruby/1.{8,9}/' |
-    grep -o 'ruby.*tar.gz' |
-    progress "$mine_cache"
-}
-
-mine_cache="$mine_path/.ruby_cache"
 
 string_search() {
   local pat="`echo "$1" | sed 's/./.*&/g'`"
@@ -155,11 +183,32 @@ update_ruby() {
   set_path
   reset_ruby
 
-cat >&3 <<-EOS
-  export mine_ruby="$mine_ruby"
-  export PATH="$PATH"
-  [[ -d "`rubies_bin_path`" ]] && hash -d \`ls `rubies_bin_path`\` &>/dev/null
+  cat >&3 <<-EOS
+export mine_ruby="$mine_ruby"
+export PATH="$PATH"
+[[ -d "$(rubies_bin_path)" ]] && hash -d \$(ls $(rubies_bin_path)) &>/dev/null
 EOS
+}
+
+export command_name=mine
+usage() {
+  [[ "$1" ]] && printf "%s\n" "$@"
+
+  cat <<-EOS
+Usage: $command_name [command] [options]
+
+  Commands:
+    alias
+    copy
+    help
+    install
+    list
+    remove
+    setup
+    use
+
+EOS
+  exit 1
 }
 
 # make sure system is setup

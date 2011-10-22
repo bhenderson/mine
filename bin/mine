@@ -11,7 +11,7 @@ export mine_path="$( cd $(dirname "$BASH_SOURCE")/..; pwd )"
     # open
     exec 3>&1 4>&1
 
-    eval "`command mine "$@" 3>&1 >&4`"
+    eval "$(command mine "$@" 3>&1 >&4)"
 
     # close
     exec 3>&- 4>&-
@@ -26,58 +26,9 @@ export mine_path="$( cd $(dirname "$BASH_SOURCE")/..; pwd )"
 
 # the rest of this script gets run as a command
 
-# is there a better way to test FD 3?
-[[ -a "/dev/fd/3" ]] || exec 3>&1
-
 # add libs
 export PATH="$mine_path/lib:$PATH"
 source 'common.sh'
-export command_name=mine
-
-usage() {
-  [[ "$@" ]] && echo "$@"
-cat <<-EOS
-Usage: $command_name [command] [options]
-
-  Commands:
-    alias
-    copy
-    help
-    install
-    list
-    remove
-    setup
-    use
-
-EOS
-  exit 1
-}
-
-# TODO `use' should be default. ie. mine 192
-parse_opts() {
-  case "$1" in
-    help)
-      [[ "$2" ]] && parse_opts "$2" "--help"
-      usage
-    ;;
-    alias|copy|install|list|remove|setup|use)
-      cmd=$1; shift
-      source "$cmd.sh" "$@"
-    ;;
-    # shortcuts
-    ls)
-      shift
-      source "list.sh" "$@"
-    ;;
-    --reset-system)
-      reset_system
-      shift
-    ;;
-    *)
-      usage "unknown option '$1'"
-    ;;
-  esac
-}
 
 parse_opts "$@"
 
