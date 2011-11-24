@@ -27,6 +27,9 @@ version that gets installed. The thought being that rubygems is now realy easy
 for users to manage themselves. If you want a different version:
 
   $ gem update --system # latest
+
+Specific version?
+
   $ gem update --system <version> (requires >= 1.5.2)
 
 see http://rubygems.rubyforge.org/rubygems-update/UPGRADING_rdoc.html

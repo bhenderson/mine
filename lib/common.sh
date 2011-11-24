@@ -77,7 +77,7 @@ parse_opts() {
       [[ "$2" ]] && parse_opts "$2" "--help"
       usage
     ;;
-    alias|copy|install|list|remove|setup|use)
+    alias|copy|install|list|remove|setup|update|use)
       cmd=$1; shift
       source "$cmd.sh" "$@"
     ;;
@@ -205,6 +205,7 @@ Usage: $command_name [command] [options]
     list
     remove
     setup
+    update
     use
 
 EOS

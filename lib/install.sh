@@ -7,6 +7,7 @@ set_original_ruby
 
 # TODO allow picking from cache file
 export mine_ruby="$1"
+shift
 disambiguate 'remote'
 mine_ruby=`basename "$mine_ruby" .tar.gz`
 
@@ -50,7 +51,7 @@ install_ruby() {
       if [[ -s "Makefile" ]]; then
         echo 'Makefile present. skipping.'
       else
-        ./configure --prefix="$prefix" 2>&1 | progress -a "$log"
+        ./configure --prefix="$prefix" "$@" 2>&1 | progress -a "$log"
       fi
 
       # TODO error checking
@@ -60,6 +61,13 @@ install_ruby() {
       make install 2>&1 | progress -a "$log"
       echo installing other binaries.
       cp bin/* "$prefix/bin"
+
+      # shim ruby
+      (
+        cd "$prefix/bin"
+        mv -f ruby .ruby
+        ln -fs "$mine_path/bin/shim" ruby
+      )
     )
 
     set_path
@@ -92,4 +100,4 @@ strip_version() {
   echo "$mine_ruby" | grep -o '[0-9]\+\.[0-9]\+'
 }
 
-install_ruby
+install_ruby "$@"
