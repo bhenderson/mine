@@ -12,18 +12,5 @@
   git pull
 
   # update everything else
-  cd "$rubies_path"
-  for ruby in *; do
-    (
-      [[ -h $ruby ]] && continue
-
-      cd $ruby/bin
-      # not symbolic link?
-      if [[ ! -h ruby ]]; then
-        pwd
-        mv -f ruby .ruby
-        ln -fs "$mine_bin/.shim" ruby
-      fi
-    )
-  done
+  source "_latest_update.sh" "$@"
 )
