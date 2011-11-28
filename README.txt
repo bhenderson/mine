@@ -49,7 +49,9 @@ function. See head of main bin.
   * tests!!!
   * copy # doing a straight cp -a does not work because of shebangs
   * get "current" ruby from CWD (allowing for .minerc files)
+    * this is now possible since we're using a shim for ruby
   * string_search does not choose exact match if longer match also exists
     * ie. 'ruby19, ruby192'
   * I want to clean up option parsing
   * lots of other things I can't think of right now
+  * should I just use `hash -r`?

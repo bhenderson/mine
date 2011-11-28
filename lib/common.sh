@@ -149,10 +149,11 @@ set_path() {
   export PATH
 }
 
+# TODO this actually needs to be such that system/bin/ruby exists
 set_system() {
   # command doesn't always work :(
   #system_ruby="`command -vp ruby`" || return
-  system_ruby="`which -a ruby | grep -v "$mine_path" | head -n1`" || return
+  system_ruby="`which -a ruby | grep -v "$mine_path" -m1`" || return
 
   (
     cd "$rubies_path"
