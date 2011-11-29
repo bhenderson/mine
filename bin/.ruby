@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # use a shim because rubygems installs executables with an absolute path to the
 # current ruby. Usecase is: install ruby 1.9.2, and 1.9.3. Under 1.9.2, bundle
@@ -7,4 +7,4 @@
 # will call the 1.9.2 ruby instead of whatever is set by the env.
 
 # this will pickup the first .ruby available in your PATH (set by mine)
-exec .ruby "$@"
+exec -a ruby .ruby "$@"
