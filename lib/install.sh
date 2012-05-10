@@ -66,7 +66,7 @@ install_ruby() {
       (
         cd "$prefix/bin"
         mv -f ruby .ruby
-        ln -fs "$mine_path/bin/shim" ruby
+        ln -fs "$mine_path/bin/.ruby" ruby
       )
     )
 
